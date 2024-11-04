@@ -36,25 +36,33 @@ if %errorlevel% neq 0 (
     echo %ESC%[!COLOR_INFO!mDocker Desktop is not installed. Downloading Docker Desktop...%ESC%[!COLOR_RESET!m
     echo Docker Desktop not found. Attempting to download and install. >> %LOGFILE%
 
-    :: Step 2.1: Download Docker if not installed
-    powershell -command "Start-BitsTransfer -Source 'https://desktop.docker.com/win/stable/Docker%20Desktop%20Installer.exe' -Destination 'DockerDesktopInstaller.exe'"
-    echo Docker Desktop installer downloaded to %cd%\DockerDesktopInstaller.exe >> %LOGFILE%
-
-    echo %ESC%[!COLOR_INFO!mInstalling Docker Desktop. Please wait...%ESC%[!COLOR_RESET!m
-    DockerDesktopInstaller.exe install --quiet
-    if %errorlevel% neq 0 (
-        echo %ESC%[!COLOR_ERROR!mFailed to install Docker Desktop. Check your internet connection and try again.%ESC%[!COLOR_RESET!m
-        echo Docker installation failed. >> %LOGFILE%
+    :: Step 2.1: Download Docker using curl
+    curl -L -o DockerDesktopInstaller.exe "https://desktop.docker.com/win/stable/Docker%20Desktop%20Installer.exe"
+    if exist DockerDesktopInstaller.exe (
+        echo Docker Desktop installer downloaded to %cd%\DockerDesktopInstaller.exe >> %LOGFILE%
+        
+        echo %ESC%[!COLOR_INFO!mInstalling Docker Desktop. Please wait...%ESC%[!COLOR_RESET!m
+        start /wait DockerDesktopInstaller.exe install --quiet
+        if %errorlevel% neq 0 (
+            echo %ESC%[!COLOR_ERROR!mFailed to install Docker Desktop. Check your internet connection and try again.%ESC%[!COLOR_RESET!m
+            echo Docker installation failed. >> %LOGFILE%
+            pause
+            exit /b
+        )
+        echo %ESC%[!COLOR_SUCCESS!mDocker Desktop installed successfully.%ESC%[!COLOR_RESET!m >> %LOGFILE%
+        
+        echo Starting Docker...
+        start /b "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+        echo Docker Desktop installed at C:\Program Files\Docker\Docker\Docker Desktop.exe >> %LOGFILE%
+        
+        echo Waiting for Docker to start...
+        timeout /t 20 >nul
+    ) else (
+        echo %ESC%[!COLOR_ERROR!mFailed to download Docker Desktop installer. Check your internet connection.%ESC%[!COLOR_RESET!m
+        echo Docker installer download failed. >> %LOGFILE%
         pause
         exit /b
     )
-    echo %ESC%[!COLOR_SUCCESS!mDocker Desktop installed successfully.%ESC%[!COLOR_RESET!m >> %LOGFILE%
-    echo Starting Docker...
-    start /b "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
-
-    echo Docker Desktop installed at C:\Program Files\Docker\Docker\Docker Desktop.exe >> %LOGFILE%
-    echo Waiting for Docker to start...
-    timeout /t 20 >nul
 ) else (
     echo %ESC%[!COLOR_SUCCESS!mDocker Desktop is already installed.%ESC%[!COLOR_RESET!m >> %LOGFILE%
 )
