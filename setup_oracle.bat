@@ -36,13 +36,13 @@ if %errorlevel% neq 0 (
     echo %ESC%[!COLOR_INFO!mDocker Desktop is not installed. Downloading Docker Desktop...%ESC%[!COLOR_RESET!m
     echo Docker Desktop not found. Attempting to download and install. >> %LOGFILE%
 
-    :: Step 2.1: Download Docker using curl
-    curl -L -o DockerDesktopInstaller.exe "https://desktop.docker.com/win/stable/Docker%20Desktop%20Installer.exe" >> %LOGFILE% 2>&1
+    :: Step 2.1: Download Docker using wget
+    wget "https://desktop.docker.com/win/stable/Docker%20Desktop%20Installer.exe" -O DockerDesktopInstaller.exe
     if exist DockerDesktopInstaller.exe (
         echo Docker Desktop installer downloaded to %cd%\DockerDesktopInstaller.exe >> %LOGFILE%
         
         echo %ESC%[!COLOR_INFO!mInstalling Docker Desktop. Please wait...%ESC%[!COLOR_RESET!m
-        start /wait "" DockerDesktopInstaller.exe >> %LOGFILE% 2>&1
+        start /wait DockerDesktopInstaller.exe install >> %LOGFILE% 2>&1
         if %errorlevel% neq 0 (
             echo %ESC%[!COLOR_ERROR!mFailed to install Docker Desktop. Check your internet connection and try again.%ESC%[!COLOR_RESET!m
             echo Docker installation failed. >> %LOGFILE%
@@ -70,7 +70,7 @@ if %errorlevel% neq 0 (
 :: Step 3: Pull the Oracle XE 21c Docker image
 echo %ESC%[!COLOR_INFO!mPulling Oracle XE 21c Docker image...%ESC%[!COLOR_RESET!m
 echo Attempting to pull Oracle XE 21c Docker image... >> %LOGFILE%
-docker pull oracle/database:21.3.0-xe >> %LOGFILE% 2>&1
+docker pull oracle/database:21.3.0-xe >nul 2>&1
 if %errorlevel% neq 0 (
     echo %ESC%[!COLOR_ERROR!mCould not pull the Oracle XE image. Ensure Docker Desktop is running and try again.%ESC%[!COLOR_RESET!m
     echo Docker image pull failed. >> %LOGFILE%
@@ -81,7 +81,7 @@ echo %ESC%[!COLOR_SUCCESS!mOracle XE Docker image pulled successfully.%ESC%[!COL
 
 :: Step 4: Run Oracle XE container with pre-configured settings
 echo %ESC%[!COLOR_INFO!mStarting Oracle XE container...%ESC%[!COLOR_RESET!m
-docker run -d -p 1521:1521 -p 5500:5500 --name oracle-xe-container -e ORACLE_PWD=%ORACLE_PWD% oracle/database:21.3.0-xe >> %LOGFILE% 2>&1
+docker run -d -p 1521:1521 -p 5500:5500 --name oracle-xe-container -e ORACLE_PWD=%ORACLE_PWD% oracle/database:21.3.0-xe >nul 2>&1
 
 if %errorlevel% neq 0 (
     echo %ESC%[!COLOR_ERROR!mFailed to start the Oracle XE container.%ESC%[!COLOR_RESET!m
