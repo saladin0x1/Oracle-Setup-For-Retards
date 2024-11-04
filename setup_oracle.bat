@@ -42,24 +42,7 @@ if %errorlevel% neq 0 (
         echo Docker Desktop installer downloaded to %cd%\DockerDesktopInstaller.exe >> %LOGFILE%
         
         echo %ESC%[!COLOR_INFO!mInstalling Docker Desktop. Please wait...%ESC%[!COLOR_RESET!m
-        
-        :: Loading animation while installing
-        start /b "" cmd /c "DockerDesktopInstaller.exe install --quiet" 
-        set "LOADER=|/-\" 
-        set "COUNT=0"
-
-        :LOOP
-        set /a COUNT+=1
-        set "CHAR=!LOADER:~%COUNT%,1!"
-        if "!CHAR!"=="" set COUNT=0
-        cls
-        echo %ESC%[!COLOR_INFO!mInstalling Docker Desktop... %CHAR% %ESC%[!COLOR_RESET!m
-        timeout /t 1 >nul
-        goto LOOP
-
-        :: Wait for installation to complete
-        timeout /t 20 >nul
-
+        start /wait "" DockerDesktopInstaller.exe
         if %errorlevel% neq 0 (
             echo %ESC%[!COLOR_ERROR!mFailed to install Docker Desktop. Check your internet connection and try again.%ESC%[!COLOR_RESET!m
             echo Docker installation failed. >> %LOGFILE%
